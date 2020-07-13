@@ -14,6 +14,10 @@ var todos = [{
     id: 3,
     description: 'Pay the electricity bill',
     completed: true
+}, {
+    id: 4,
+    description: 'Subnit the timesheet',
+    completed: true
 }];
 
 app.get('/', function (req, res) {

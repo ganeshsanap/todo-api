@@ -12,6 +12,7 @@ var db = {};
 db.todo = require(__dirname + '/models/todo.js')(sequelize, Sequelize);
 
 db.sequelize = sequelize;
+db.Op = Op;
 db.Sequelize = Sequelize;
 
 module.exports = db; 

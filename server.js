@@ -40,23 +40,34 @@ app.get('/todos', function (req, res) {
 // GET /todos/:id
 app.get('/todos/:id', function (req, res) {
     var todoId = parseInt(req.params.id, 10);
-    var matchedTodo;
 
-    // search using underscore library
-    matchedTodo = _.findWhere(todos, {id: todoId});
+    db.todo.findByPk(todoId).then(function(todo) {
+        if (!!todo) {
+            res.json(todo.toJSON());
+        } else {
+            res.status(404).send();
+        }
+    }, function (e) {
+        res.status(500).send();
+    });
 
-    // search using forEach
+    //var matchedTodo;
+
+    //// search using underscore library for Static array
+    //matchedTodo = _.findWhere(todos, {id: todoId});
+
+    //// search using forEach on array
     // todos.forEach(function(todo){
     //     if(todo.id === todoId) {
     //         matchedTodo = todo;
     //     }
     // });
 
-    if(matchedTodo) {
-        res.json(matchedTodo);
-    } else {
-        res.status(404).send();
-    }
+    // if(matchedTodo) {
+    //     res.json(matchedTodo);
+    // } else {
+    //     res.status(404).send();
+    // }
 });
 
 // POST /todos
@@ -69,7 +80,7 @@ app.post('/todos', function (req, res) {
         res.status(400).json(e);
     });
 
-    //// Old implementation for array
+    //// Old implementation using static array
     // if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
     //     return res.status(400).send();
     // }

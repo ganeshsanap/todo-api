@@ -1,8 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var bcrypt = require('bcrypt');
 
 var db = require('./db.js');
+const { where, bind, functions } = require('underscore');
  
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -196,6 +198,41 @@ app.put('/todos/:id', function (req, res) {
     
 });
 
+//// GET /users?q=ganeshs
+// app.get('/users', function(req, res) {
+//     var query = req.query;
+//     var where = {};
+
+//     if (query.hasOwnProperty('q') && query.q.length > 0) {
+//         where.email = {
+//             [db.Op.like]: '%' + query.q + '%'
+//         }
+//     }
+
+//     db.user.findAll({where: where}).then(function (users){
+//         res.json(users);
+//     }, function(e) {
+//         res.status(500).send();
+//     });
+// });
+
+
+// GET /users/:id
+app.get('/users/:id', function(req, res) {
+    var userId = parseInt(req.params.id, 10);
+
+    db.user.findByPk(userId).then(function(user) {
+        if (!!user) {
+            res.json(user.toPublicJSON());
+        } else {
+            res.status(404).send();
+        }
+    }, function (e) {
+        res.status(500).send();
+    });
+
+});
+
 // POST /users
 app.post('/users', function(req, res) {
     var body = _.pick(req.body, 'email', 'password');
@@ -207,7 +244,18 @@ app.post('/users', function(req, res) {
     });
 });
 
-db.sequelize.sync().then(function(){
+// POST/users/login
+app.post('/users/login', function(req, res) {
+    var body = _.pick(req.body, 'email', 'password');
+
+    db.user.authenticate(body).then(function(user){
+        res.json(user.toPublicJSON());
+    }, function(e){
+        res.status(401).send();
+    });
+});
+
+db.sequelize.sync({ force: true }).then(function(){
     app.listen(PORT, function () {
         console.log('Express listening on port ' + PORT + '!');
     });

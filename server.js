@@ -38,7 +38,7 @@ app.get('/todos', middleware.requireAuthentication, function (req, res) {
         }
     }
 
-    db.todo.findAll({where: where}).then(function (todos){
+    db.todo.findAll({where: where}).then(function (todos) {
         res.json(todos);
     }, function(e) {
         res.status(500).send();
@@ -99,7 +99,7 @@ app.get('/todos/:id', middleware.requireAuthentication, function (req, res) {
 app.post('/todos', middleware.requireAuthentication, function (req, res) {   
     var body = _.pick(req.body, 'description', 'completed');
 
-    db.todo.create(body).then(function(todo){
+    db.todo.create(body).then(function(todo) {
         res.json(todo.toJSON());
     }, function (e) {
         res.status(400).json(e);
@@ -125,7 +125,7 @@ app.delete('/todos/:id', middleware.requireAuthentication, function (req, res) {
         where: {
             id: todoId
         }
-    }).then(function(rowsDeleted){
+    }).then(function(rowsDeleted) {
         if (rowsDeleted === 0) {
             res.status(404).json({
                 error: 'No record found with id'
@@ -162,9 +162,9 @@ app.put('/todos/:id', middleware.requireAuthentication, function (req, res) {
         attributes.description = body.description;
     }
     
-    db.todo.findByPk(todoId).then(function(todo){
+    db.todo.findByPk(todoId).then(function(todo) {
         if (todo) {
-            return todo.update(attributes).then(function(todo){
+            return todo.update(attributes).then(function(todo) {
                 res.json(todo.toJSON());
             }, function(e){
                 res.status(400).json(e)
@@ -250,7 +250,7 @@ app.post('/users', function(req, res) {
 app.post('/users/login', function(req, res) {
     var body = _.pick(req.body, 'email', 'password');
 
-    db.user.authenticate(body).then(function(user){
+    db.user.authenticate(body).then(function(user) {
         var token = user.generateToken('authentication');
         if(token) {
             res.header('Auth', token).json(user.toPublicJSON());
@@ -262,7 +262,7 @@ app.post('/users/login', function(req, res) {
     });
 });
 
-db.sequelize.sync({ force: true }).then(function(){
+db.sequelize.sync({ force: true }).then(function() {
     app.listen(PORT, function () {
         console.log('Express listening on port ' + PORT + '!');
     });

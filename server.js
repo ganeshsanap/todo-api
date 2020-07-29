@@ -4,9 +4,6 @@ var _ = require('underscore');
 var bcrypt = require('bcrypt');
 var db = require('./db.js');
 var middleware = require('./middleware.js')(db);
-
-
-const { where, bind, functions } = require('underscore');
  
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -43,23 +40,6 @@ app.get('/todos', middleware.requireAuthentication, function (req, res) {
     }, function(e) {
         res.status(500).send();
     });
-
-    //// Old implementation using static array
-    // var filteredTodos = todos;
-
-    // if (query.hasOwnProperty('completed') && query.completed === 'true') {
-    //     filteredTodos = _.where(filteredTodos, { completed: true});
-    // } else if (query.hasOwnProperty('completed') && query.completed === 'false') {
-    //     filteredTodos = _.where(filteredTodos, { completed: false});
-    // }
-
-    // if (query.hasOwnProperty('q') && query.q.length > 0) {
-    //     filteredTodos = _.filter(filteredTodos, function (todo) {
-    //         return todo.description.toLowerCase().indexOf(query.q.toLowerCase()) > -1;
-    //     });
-    // }
-
-    //res.json(filteredTodos);
 });
 
 // GET /todos/:id
@@ -75,24 +55,6 @@ app.get('/todos/:id', middleware.requireAuthentication, function (req, res) {
     }, function (e) {
         res.status(500).send();
     });
-
-    //var matchedTodo;
-
-    //// search using underscore library for Static array
-    //matchedTodo = _.findWhere(todos, {id: todoId});
-
-    //// search using forEach on array
-    // todos.forEach(function(todo){
-    //     if(todo.id === todoId) {
-    //         matchedTodo = todo;
-    //     }
-    // });
-
-    // if(matchedTodo) {
-    //     res.json(matchedTodo);
-    // } else {
-    //     res.status(404).send();
-    // }
 });
 
 // POST /todos
@@ -100,21 +62,14 @@ app.post('/todos', middleware.requireAuthentication, function (req, res) {
     var body = _.pick(req.body, 'description', 'completed');
 
     db.todo.create(body).then(function(todo) {
-        res.json(todo.toJSON());
+        req.user.addTodo(todo).then(function () {
+            return todo.reload();
+        }).then(function (todo) {
+            res.json(todo.toJSON());
+        });
     }, function (e) {
         res.status(400).json(e);
     });
-
-    //// Old implementation using static array
-    // if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-    //     return res.status(400).send();
-    // }
-
-    // body.id = todoNextId++;
-    // body.description = body.description.trim();
-
-    // todos.push(body);
-    // res.json(body);
 });
 
 // DELETE /todos/:id
@@ -136,16 +91,6 @@ app.delete('/todos/:id', middleware.requireAuthentication, function (req, res) {
     }, function (e) {
         res.status(500).send();
     });
-
-    //// Old implementation using underscore package
-    // var matchedTodo = _.findWhere(todos, {id: todoId});
-
-    // if(!matchedTodo) {
-    //     res.status(404).json({"error": "No todo item found with given id"});
-    // } else {
-    //     todos = _.without(todos, matchedTodo);
-    //     res.json(matchedTodo);
-    // }
 });
 
 // PUT /todos/:id
@@ -175,29 +120,6 @@ app.put('/todos/:id', middleware.requireAuthentication, function (req, res) {
     }, function () {
         res.status(500).send(); 
     });
-
-    //// Old implementation using underscore package
-    // var matchedTodo = _.findWhere(todos, {id: todoId});
-    // if (!matchedTodo) {
-    //     return res.status(404).send();
-    // }
-
-    // if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-    //     validAttributes.completed = body.completed;
-    // } else if (body.hasOwnProperty('completed')) {
-    //     res.status(400).send();
-    // }
-
-    // if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
-    //     validAttributes.description = body.description.trim();
-    // } else if (body.hasOwnProperty('description')) {
-    //     res.status(400).send();
-    // }
-
-    // _.extend(matchedTodo, validAttributes);
-
-    // res.json(matchedTodo);
-    
 });
 
 //// GET /users?q=ganeshs
@@ -262,7 +184,9 @@ app.post('/users/login', function(req, res) {
     });
 });
 
-db.sequelize.sync({ force: true }).then(function() {
+db.sequelize.sync({
+    force: true
+}).then(function() {
     app.listen(PORT, function () {
         console.log('Express listening on port ' + PORT + '!');
     });

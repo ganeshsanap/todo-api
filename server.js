@@ -122,24 +122,6 @@ app.put('/todos/:id', middleware.requireAuthentication, function (req, res) {
     });
 });
 
-//// GET /users?q=ganeshs
-// app.get('/users', function(req, res) {
-//     var query = req.query;
-//     var where = {};
-
-//     if (query.hasOwnProperty('q') && query.q.length > 0) {
-//         where.email = {
-//             [db.Op.like]: '%' + query.q + '%'
-//         }
-//     }
-
-//     db.user.findAll({where: where}).then(function (users){
-//         res.json(users);
-//     }, function(e) {
-//         res.status(500).send();
-//     });
-// });
-
 
 // GET /users/:id
 app.get('/users/:id', function(req, res) {

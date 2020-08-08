@@ -18,9 +18,9 @@ if (env === 'production') {
 
 var db = {};
 
-//db.todo = sequelize.import(__dirname + '/models/todo.js');
 db.todo = require(__dirname + '/models/todo.js')(sequelize, Sequelize);
 db.user = require(__dirname + '/models/user.js')(sequelize, Sequelize);
+db.token = require(__dirname + '/models/token.js')(sequelize, Sequelize);
 
 db.sequelize = sequelize;
 db.Op = Op;

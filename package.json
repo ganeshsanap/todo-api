@@ -18,6 +18,6 @@
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.3",
     "sqlite3": "^5.0.0",
-    "underscore": "^1.10.2"
+    "underscore": "^1.12.1"
   }
 }
